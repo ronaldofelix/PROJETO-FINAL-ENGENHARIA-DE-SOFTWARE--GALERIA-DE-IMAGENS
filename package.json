@@ -86,6 +86,7 @@
     "fb-watchman": "^2.0.2",
     "fill-range": "^7.1.1",
     "find-up": "^4.1.0",
+    "firebase": "^10.14.1",
     "form-data": "^4.0.0",
     "fs.realpath": "^1.0.0",
     "function-bind": "^1.1.2",

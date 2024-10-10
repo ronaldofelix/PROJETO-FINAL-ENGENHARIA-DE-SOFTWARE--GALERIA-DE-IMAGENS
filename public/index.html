@@ -1,89 +1,256 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/10.14.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/10.14.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/10.14.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+<head>
+  <meta charset="UTF-8">
+  <title>Galeria de Imagens</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+<body>
+
+  <header>
+    <h1>Galeria de Imagens</h1>
+    <div class="button-container">
+      <button id="botao-abrir-galeria" class="button">Abrir Galeria</button>
+      <button id="logout-button" class="button" style="display: none;">Logout</button>
+      <div class="search-container" style="display: none;">
+        <input type="text" id="search-input" placeholder="Pesquisar por descrição...">
+        <button id="search-button">Pesquisar</button>
+      </div>
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+  </header>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
-  </body>
+  <div id="login-modal" class="login-modal">
+    <div class="login-content">
+      <!-- Login Form -->
+      <div id="login-section">
+        <h2>Login</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-username">Usuário:</label>
+            <input type="text" id="login-username" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Senha:</label>
+            <input type="password" id="login-password" required>
+          </div>
+          <div class="form-buttons">
+            <button type="submit">Entrar</button>
+            <button type="button" id="cancel-login">Cancelar</button>
+          </div>
+          <div class="form-switch">
+            Não tem uma conta? <button type="button" id="switch-to-register">Registrar</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Register Form -->
+      <div id="register-section" style="display: none;">
+        <h2>Registro</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label for="register-username">Usuário:</label>
+            <input type="text" id="register-username" required>
+          </div>
+          <div class="form-group">
+            <label for="register-email">Email:</label>
+            <input type="email" id="register-email" required>
+          </div>
+          <div class="form-group">
+            <label for="register-password">Senha:</label>
+            <input type="password" id="register-password" required>
+          </div>
+          <div class="form-group">
+            <label for="register-confirm-password">Confirmar Senha:</label>
+            <input type="password" id="register-confirm-password" required>
+          </div>
+          <div class="form-buttons">
+            <button type="submit">Registrar</button>
+            <button type="button" id="cancel-register">Cancelar</button>
+          </div>
+          <div class="form-switch">
+            Já tem uma conta? <button type="button" id="switch-to-login">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <main>
+
+
+    <!-- Upload Section -->
+    <div id="upload-section" class="upload-section" style="display: none;">
+      <button id="open-upload-modal" class="upload-button">
+        <i class="upload-icon">+</i>
+        Adicionar Imagem
+      </button>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="upload-modal">
+      <div class="upload-content">
+        <h2>Enviar Nova Imagem</h2>
+        <form id="upload-form">
+          <div class="upload-area" id="drop-zone">
+            <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.gif" multiple hidden>
+            <div class="upload-message">
+              <span>Arraste imagens aqui ou clique para selecionar</span>
+              <span class="upload-formats">(JPG, PNG, GIF)</span>
+            </div>
+          </div>
+          <div id="preview-container" class="preview-container"></div>
+          <div class="upload-buttons">
+            <button type="submit">Enviar</button>
+            <button type="button" id="cancel-upload">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+
+    <div id="galeria">
+      <div class="grid">
+        <div class="imagem">
+          <a href="https://picsum.photos/id/76/4912/3264" download></a>
+          <img src="https://picsum.photos/id/76/4912/3264" alt="Imagem 1" id="00">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/16/2500/1667" download></a>
+          <img src="https://picsum.photos/id/16/2500/1667" alt="Imagem 2" id="01">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/17/2500/1667" download></a>
+          <img src="https://picsum.photos/id/17/2500/1667" alt="Imagem 3" id="02">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/13/2500/1667" download></a>
+          <img src="https://picsum.photos/id/13/2500/1667" alt="Imagem 4" id="03">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/103/2592/1936" download></a>
+          <img src="https://picsum.photos/id/103/2592/1936" alt="Imagem 5" id="04">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/237/3500/2095" download></a>
+          <img src="https://picsum.photos/id/237/3500/2095" alt="Imagem 6" id="05">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/350/5000/3338" download></a>
+          <img src="https://picsum.photos/id/350/5000/3338" alt="Imagem 7" id="06">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/1025/4951/3301" download></a>
+          <img src="https://picsum.photos/id/1025/4951/3301" alt="Imagem 13" id="07">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/742/3333/5000" download></a>
+          <img src="https://picsum.photos/id/742/3333/5000" alt="Imagem 8" id="08">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/515/4585/3439" download></a>
+          <img src="https://picsum.photos/id/515/4585/3439" alt="Imagem 9" id="09">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/582/2509/1673" download></a>
+          <img src="https://picsum.photos/id/582/2509/1673" alt="Imagem 10" id="10">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/593/1774/2365" download></a>
+          <img src="https://picsum.photos/id/593/1774/2365" alt="Imagem 11" id="11">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/613/1670/2513" download></a>
+          <img src="https://picsum.photos/id/613/1670/2513" alt="Imagem 12" id="12">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/689/5000/3333" download></a>
+          <img src="https://picsum.photos/id/689/5000/3333" alt="Imagem 14" id="13">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/770/3000/2000" download> </a>
+          <img src="https://picsum.photos/id/770/3000/2000" alt="Imagem 15" id="14">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/767/3069/2048" download> </a>
+          <img src="https://picsum.photos/id/767/3069/2048" alt="Imagem 16" id="15">
+        </div>
+
+        <div class="imagem">
+          <a href="https://picsum.photos/id/883/3000/2000" download></a>
+          <img src="https://picsum.photos/id/883/3000/2000" alt="Imagem 17" id="16">
+        </div>
+      </div>
+
+
+
+
+      <div id="modal">
+        <div class="modal-content">
+          <button class="side-nav-button nav-prev" id="side-prev">
+            <i class="nav-arrow arrow-left"></i>
+          </button>
+          <button class="side-nav-button nav-next" id="side-next">
+            <i class="nav-arrow arrow-right"></i>
+          </button>
+          <img id="modal-image" src="">
+          <div class="modal-buttons">
+            <button id="prev">Anterior</button>
+            <button id="next">Próxima</button>
+            <button id="rotate-left">Rotacionar para esquerda</button>
+            <button id="rotate-right">Rotacionar para direita</button>
+            <button id="flip-horizontal">Inverter horizontalmente</button>
+            <button id="flip-vertical">Inverter verticalmente</button>
+            <button id="black-white">Filtro P&B</button>
+            <button id="filtro-negativo"> Filtro Negativo</button>
+            <button id="remove-filter">Remover Filtros</button>
+            <button id="zoom-in">Zoom +</button>
+            <button id="zoom-out">Zoom -</button>
+            <button id="add-description">Adicionar Descrição</button>
+            <button id="download">Baixar Original</button>
+            <button id="download-efeitos">Baixar Com Efeitos</button>
+            <button id="close">Fechar</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="description-modal" class="description-modal">
+        <div class="description-content">
+          <h2>Adicionar Descrição</h2>
+          <textarea id="image-description" placeholder="Digite a descrição da imagem..."></textarea>
+          <div class="description-buttons">
+            <button id="save-description">Salvar</button>
+            <button id="cancel-description">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2023 Galeria de Imagens</p>
+  </footer>
+  <script src="script.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+</body>
+
 </html>
