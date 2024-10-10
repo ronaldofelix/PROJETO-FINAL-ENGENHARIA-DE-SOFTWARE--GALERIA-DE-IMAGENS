@@ -3,32 +3,30 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
+const admin = require('firebase-admin');
+require('dotenv').config();
+
+// Inicializa o Firebase Admin SDK usando variáveis de ambiente
+admin.initializeApp({
+    credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    }),
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+});
+
+const bucket = admin.storage().bucket();
 
 const app = express();
 const port = 3000;
 
-// Configurar CORS
+// Resto do seu código permanece igual
 app.use(cors());
 app.use(express.json());
 
-// Configurar o Multer para upload de arquivos
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = 'uploads';
-        // Criar pasta uploads se não existir
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        // Gerar nome único para o arquivo
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage();
 
-// Filtro para aceitar apenas imagens
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (allowedTypes.includes(file.mimetype)) {
@@ -42,63 +40,55 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024 // limite de 5MB
+        fileSize: 5 * 1024 * 1024
     }
 });
 
-// Servir arquivos estáticos da pasta uploads
-app.use('/uploads', express.static('uploads'));
-
-// Rota para upload de imagens
-app.post('/upload', upload.single('image'), (req, res) => {
+app.post('/upload', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'Nenhum arquivo enviado' });
         }
 
-        // Retorna o caminho do arquivo salvo
+        const file = bucket.file(req.file.originalname);
+        const [uploadResponse] = await file.save(req.file.buffer);
+
         res.json({
             message: 'Upload realizado com sucesso',
-            filePath: `/uploads/${req.file.filename}`
+            filePath: uploadResponse[0].publicUrl
         });
     } catch (error) {
         res.status(500).json({ error: 'Erro ao fazer upload do arquivo' });
     }
 });
 
-// Rota para listar todas as imagens
-app.get('/images', (req, res) => {
-    const uploadDir = 'uploads';
-
-    fs.readdir(uploadDir, (err, files) => {
-        if (err) {
-            return res.status(500).json({ error: 'Erro ao listar arquivos' });
-        }
-
+app.get('/images', async (req, res) => {
+    try {
+        const [files] = await bucket.getFiles();
         const images = files.map(file => ({
-            name: file,
-            path: `/uploads/${file}`
+            name: file.name,
+            path: file.publicUrl
         }));
-
         res.json(images);
-    });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao listar arquivos' });
+    }
 });
 
-// Rota para deletar uma imagem
-app.delete('/images/:filename', (req, res) => {
+app.delete('/images/:filename', async (req, res) => {
     const filename = req.params.filename;
-    const filepath = path.join(__dirname, 'uploads', filename);
+    const file = bucket.file(filename);
 
-    fs.unlink(filepath, (err) => {
-        if (err) {
-            return res.status(500).json({ error: 'Erro ao deletar arquivo' });
-        }
+    try {
+        await file.delete();
         res.json({ message: 'Arquivo deletado com sucesso' });
-    });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao deletar arquivo' });
+    }
 });
+
+app.use(express.static('public'));
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
-
-app.use(express.static('public'));
