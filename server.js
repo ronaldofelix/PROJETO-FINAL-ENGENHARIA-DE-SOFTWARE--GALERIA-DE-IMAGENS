@@ -100,3 +100,7 @@ app.delete('/images/:filename', (req, res) => {
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
